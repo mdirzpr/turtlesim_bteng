@@ -1,0 +1,33 @@
+# ============================================================================
+# bt_turtlesim_ctrl — runtime parameters (single source of truth)  🐢🌳
+# ============================================================================
+# Loaded by turtlesim_bt.launch.py for both nodes. Launch arguments override
+# the spawn settings below only when passed explicitly on the command line,
+# e.g. `ros2 launch ... min_interval:=1.0`.
+#
+# Visualisation note: there is NO Groot2 in the BTEng port. The controller
+# embeds a BTEng ZmqPublisher that streams tick events on tcp://*:1667
+# (install with: pip install 'bteng[zmq]').
+
+turtle_spawner:
+  ros__parameters:
+    initial_spawn_count: 3    # turtles spawned immediately at startup (staggered 0.4 s apart)
+    min_interval: 2.0         # seconds between periodic spawns (lower bound)
+    max_interval: 4.0         # seconds between periodic spawns (upper bound)
+
+turtle_controller:
+  ros__parameters:
+    # Strategy used when the tree XML reads {strategy} from the blackboard.
+    # Hard-coded strategy="sequential"/"closest" in the XML takes precedence.
+    # NOTE: the launch file always passes `strategy` (it also picks which XML
+    # to load), so this value is only a standalone-run fallback.
+    strategy: "sequential"
+
+    # Seconds between BTEng tree ticks (the looping executor's tick period).
+    tick_interval: 0.02
+
+    # BTEng ZmqPublisher port for the live tick-event stream.
+    zmq_port: 1667
+
+    # Enable the embedded BTEng ZmqPublisher (needs pip install 'bteng[zmq]').
+    enable_zmq: true

@@ -1,0 +1,8 @@
+{
+  "file_format": "1.0",
+  "description": "bt_turtlesim_ctrl — BTEng project index (not Groot2; trees use the BTEng <BTEng> XML format, streamed live via ZmqPublisher on tcp://*:1667)",
+  "xml_files": [
+    "turtle_hunter_sequential.xml",
+    "turtle_hunter_closest.xml"
+  ]
+}

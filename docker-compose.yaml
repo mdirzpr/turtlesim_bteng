@@ -1,0 +1,164 @@
+################################################################################
+# 🐢 Docker Compose Configuration for the Turtlesim BTEng ROS 2 Example
+#
+# Purpose:
+#   - Orchestrates the development / simulation environment
+#   - Configures volume mounts for live code editing
+#   - Sets up networking for ROS 2 communication and the BTEng ZMQ stream
+#
+# Services:
+#   1. dev: Development container with the bt_turtlesim_ctrl package + tools
+#
+# Common Commands:
+#   Build images:        docker compose build
+#   Start dev shell:     docker compose run dev bash
+#   Run in background:   docker compose up -d dev
+#   Stop all:            docker compose down
+#   View logs:           docker compose logs -f dev
+#   Execute in running:  docker exec -it turtlesim_bteng_dev bash
+#
+# Requirements:
+#   - Docker Engine 20.10+
+#   - Docker Compose V2
+#   - X11 server (for the turtlesim GUI window)
+#   - Host user UID/GID 1000 (or override via .env file)
+#
+# 🖥️ X11 Display Setup (Required for the turtlesim window):
+#   Run this command on the HOST before starting containers:
+#     xhost +local:docker
+#
+#   To revoke access later (optional):
+#     xhost -local:docker
+#
+# 🔌 BTEng Live Stream:
+#   The controller publishes a BTEng ZmqPublisher stream on tcp://*:1667.
+#   Because the container uses host networking, that port is reachable directly
+#   on the host (no port mapping needed). Groot2 is NOT used here.
+################################################################################
+
+services:
+  ##############################################################################
+  # 🛠️ DEVELOPMENT CONTAINER
+  #
+  # Purpose:
+  #   - Interactive development environment for bt_turtlesim_ctrl
+  #   - Full ROS 2 toolchain with the BTEng Python stack (pip-installed)
+  #   - Live code editing with volume mounts
+  #   - X11 support for the turtlesim GUI
+  #
+  # Access:
+  #   - Interactive: docker compose run dev bash
+  #   - Background:  docker compose up -d dev (use docker exec to attach)
+  #
+  # Workspace Layout:
+  #   - /dev_ws:   Overlay workspace (project code) - mounted from host
+  #   - ./.colcon: Build artifacts - persistent across restarts
+  ##############################################################################
+  dev:
+    # Image and container identification
+    image: turtlesim_bteng:dev                   # Built from Dockerfile 'dev' stage
+    container_name: turtlesim_bteng_dev          # Fixed name for easy docker exec access
+    hostname: bt-dev                             # Network hostname inside container
+
+    # Build configuration
+    build:
+      context: .                            # Build from project root
+      dockerfile: docker/Dockerfile         # Dockerfile location
+      args:
+        # Build arguments (can be overridden via .env file)
+        ROS_DISTRO: ${ROS_DISTRO:-jazzy}    # ROS 2 distribution
+        UID: ${UID:-1000}                   # Match host user UID for file permissions
+        GID: ${GID:-1000}                   # Match host user GID
+        USERNAME: ${USERNAME:-devuser}      # Container username
+      target: dev                           # Build 'dev' stage from multi-stage Dockerfile
+
+    ############################################################################
+    # 🖥️ INTERACTIVE TERMINAL SUPPORT
+    #
+    # stdin_open: Keeps STDIN open for interactive input
+    # tty:        Allocates pseudo-TTY for terminal emulation
+    ############################################################################
+    stdin_open: true
+    tty: true
+
+    ############################################################################
+    # 🌐 NETWORKING CONFIGURATION
+    #
+    # network_mode: host
+    #   - Container shares host network stack (no NAT)
+    #   - Required for ROS 2 DDS discovery between host and container
+    #   - Exposes the BTEng ZmqPublisher (tcp://*:1667) directly on the host
+    #
+    # ipc: host
+    #   - Shared memory for efficient inter-process communication
+    ############################################################################
+    network_mode: host
+    ipc: host
+
+    ############################################################################
+    # 🔓 PRIVILEGED MODE
+    #
+    # Purpose:
+    #   - Access to host devices and smoother X11 forwarding
+    #
+    # ⚠️ Security Note:
+    #   - Grants elevated privileges; acceptable for development only
+    ############################################################################
+    privileged: true
+
+    ############################################################################
+    # 🌍 ENVIRONMENT VARIABLES
+    #
+    # Display and GUI configuration:
+    #   - DISPLAY: X11 display server (forwarded from host)
+    #   - QT_X11_NO_MITSHM: Disable shared memory for Qt apps (prevents crashes)
+    #   - NVIDIA_DRIVER_CAPABILITIES: Enable GPU acceleration (if available)
+    #
+    # 🔒 ROS 2 Domain Isolation:
+    #   - ROS_DOMAIN_ID: Isolates this simulation from other ROS 2 nodes
+    #   - Valid range: 0-232 (default: 42)
+    ############################################################################
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-42}
+
+    ############################################################################
+    # 📁 VOLUME MOUNTS
+    #
+    # Three categories:
+    #   1. X11 Display (turtlesim GUI)
+    #   2. Source Code (live editing)
+    #   3. Build Artifacts (persistent caching)
+    ############################################################################
+    volumes:
+      # --- 🖥️ X11 Display Forwarding (for the turtlesim window) ---
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/${USERNAME:-devuser}/.Xauthority
+
+      # --- 📝 Source Code (live editing, changes reflected immediately) ---
+      - ./interfaces:/dev_ws/src/bt_turtlesim_interfaces:rw
+      - ./bt_turtlesim_ctrl:/dev_ws/src/bt_turtlesim_ctrl:rw
+
+      # --- 🔧 Build Artifacts (persistent across container restarts) ---
+      - ./.colcon/build/:/dev_ws/build/:rw
+      - ./.colcon/install/:/dev_ws/install/:rw
+      - ./.colcon/log/:/dev_ws/log/:rw
+
+    ############################################################################
+    # 👤 USER CONTEXT
+    #
+    # Run as non-root user matching host UID/GID:
+    #   - Prevents file permission issues on mounted volumes
+    #   - User created in Dockerfile with sudo privileges
+    ############################################################################
+    user: ${USERNAME:-devuser}
+
+    ############################################################################
+    # ⏳ DEFAULT COMMAND
+    #
+    # sleep infinity keeps the container running for docker exec sessions.
+    # Override with: docker compose run dev bash
+    ############################################################################
+    command: sleep infinity

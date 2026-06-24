@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>bt_turtlesim_ctrl</name>
+  <version>1.0.0</version>
+  <description>
+    BTEng (Python) controller for turtlesim. 🐢🌳
+    Spawns prey turtles at random positions every 2-4 seconds and uses a
+    BTEng behavior tree (loaded from XML) to hunt them with two selectable
+    strategies:
+      - sequential: catch turtles in the order they appeared
+      - closest:    always chase the nearest turtle first
+    Live introspection is provided by BTEng's ZmqPublisher (tcp://*:1667) plus a
+    colored console Logger sink. (No Groot2 / BehaviorTree.CPP.)
+  </description>
+
+  <maintainer email="mahdi.rezapour@dfki.de">Mahdi Rezapour</maintainer>
+  <license>MIT</license>
+
+  <!-- ament_python's build system is declared via <build_type> in <export>
+       below; it is NOT a rosdep key, so it must not appear as a buildtool_depend
+       (rosdep install would fail trying to resolve it). -->
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>turtlesim</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>bt_turtlesim_interfaces</exec_depend>
+
+  <!--
+    The behavior-tree engine is NOT a ROS/apt package. Install via pip:
+        pip install 'bteng[zmq]' bteng-ros2
+    (bteng = engine, bteng-ros2 = ROS 2 base classes, pyzmq = ZMQ stream).
+    These are intentionally NOT listed as <exec_depend> because they are not
+    available through rosdep/apt.
+  -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

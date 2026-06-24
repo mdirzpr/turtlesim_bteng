@@ -1,0 +1,44 @@
+# ============================================================================
+# ROS 2 / colcon build artifacts
+# ============================================================================
+build/
+install/
+log/
+# This project bind-mounts colcon output here (see docker-compose.yaml)
+.colcon/
+
+# ament / colcon test + index output
+*.colcon_build_done
+COLCON_IGNORE
+
+# ============================================================================
+# Python (ament_python package)
+# ============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+.installed.cfg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.venv/
+venv/
+
+# ============================================================================
+# Docker / environment
+# ============================================================================
+# Local UID/GID/USERNAME overrides consumed by docker-compose.yaml
+.env
+
+# ============================================================================
+# Editors / OS
+# ============================================================================
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

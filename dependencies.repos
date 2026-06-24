@@ -1,0 +1,21 @@
+# ============================================================================
+# vcstool dependency manifest
+# ============================================================================
+# This BTEng port has NO vcstool/source dependencies.
+#
+# BTEng and its ROS 2 bindings are installed via pip (see docker/Dockerfile),
+# not built from source:
+#
+#     pip install 'bteng[zmq]' bteng-ros2
+#
+#   * bteng       — https://pypi.org/project/bteng/   (the behavior-tree engine;
+#                   the [zmq] extra pulls in pyzmq for the ZmqPublisher stream)
+#   * bteng-ros2  — https://pypi.org/project/bteng-ros2/  (ROS 2 base classes +
+#                   RosBTExecutor)
+#
+# The turtlesim simulator comes from apt: ros-jazzy-turtlesim.
+#
+# This file is intentionally left with an empty `repositories:` map so that a
+# `vcs import < dependencies.repos` is a harmless no-op.
+# ============================================================================
+repositories:

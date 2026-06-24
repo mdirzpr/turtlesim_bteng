@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================================
+  TURTLE HUNTER — SEQUENTIAL STRATEGY   (BTEng XML format)
+  ============================================================================
+  Strategy: catch turtles in the order they appeared (FIFO).
+
+  Tree logic
+  ──────────
+  Sequence "HuntOneTurtle"
+    Fallback "WaitForPrey"
+      HasTargetTurtles      ← SUCCESS if any prey exists
+      WaitForTurtle(1 s)    ← RUNNING for 1 s, then FAILURE — polite idle
+    SelectNextTurtle(strategy="sequential")  ← oldest first; writes target_*
+    MoveTurtleToTarget      ← proportional controller, RUNNING until reached
+    CatchTurtle             ← calls /kill, removes from prey list
+
+  The infinite hunt loop is NOT in the XML: the controller (a custom looping
+  executor) resets the tree and re-ticks after each completed cycle, because
+  BTEng has no Repeat decorator and RosBTExecutor stops on completion.
+
+  Live introspection: BTEng ZmqPublisher streams tick events on tcp://*:1667.
+  ============================================================================
+-->
+<BTEng format_version="1.0" main_tree_to_execute="TurtleHunter">
+
+  <Tree ID="TurtleHunter">
+    <Sequence name="HuntOneTurtle">
+
+      <!-- Step 1: wait until there is at least one prey turtle -->
+      <Fallback name="WaitForPrey">
+        <HasTargetTurtles name="AnyPreyAlive"/>
+        <WaitForTurtle name="IdleWait" timeout_sec="1.0"/>
+      </Fallback>
+
+      <!-- Step 2: choose target — oldest turtle first -->
+      <SelectNextTurtle
+        name="PickTarget"
+        strategy="sequential"
+        target_name="{target_name}"
+        target_x="{target_x}"
+        target_y="{target_y}"/>
+
+      <!-- Step 3: drive turtle1 toward the selected prey -->
+      <MoveTurtleToTarget
+        name="ChaseTarget"
+        target_x="{target_x}"
+        target_y="{target_y}"
+        target_name="{target_name}"
+        catch_distance="0.5"
+        linear_gain="1.5"
+        angular_gain="4.0"/>
+
+      <!-- Step 4: kill the turtle and remove it from the prey list -->
+      <CatchTurtle
+        name="EliminatePrey"
+        target_name="{target_name}"/>
+
+    </Sequence>
+  </Tree>
+
+  <!-- ======================================================================
+       TreeNodesModel — declares each node's port directions. The parser uses
+       this to route attr="{key}" references to input vs output ports, and the
+       directions must match each node's provided_ports() or validation fails.
+  ====================================================================== -->
+  <TreeNodesModel>
+
+    <Condition ID="HasTargetTurtles"/>
+
+    <Action ID="SelectNextTurtle">
+      <input_port  name="strategy"/>
+      <output_port name="target_name"/>
+      <output_port name="target_x"/>
+      <output_port name="target_y"/>
+    </Action>
+
+    <Action ID="MoveTurtleToTarget">
+      <input_port name="target_x"/>
+      <input_port name="target_y"/>
+      <input_port name="target_name"/>
+      <input_port name="catch_distance"/>
+      <input_port name="linear_gain"/>
+      <input_port name="angular_gain"/>
+      <input_port name="max_linear_speed"/>
+      <input_port name="max_angular_speed"/>
+      <input_port name="heading_tolerance"/>
+    </Action>
+
+    <Action ID="CatchTurtle">
+      <input_port name="target_name"/>
+    </Action>
+
+    <Action ID="WaitForTurtle">
+      <input_port name="timeout_sec"/>
+    </Action>
+
+  </TreeNodesModel>
+
+</BTEng>
