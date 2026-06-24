@@ -127,7 +127,16 @@ which is incompatible with BTEng's event stream. Instead BTEng streams its own
 JSON tick events over a ZMQ `PUB` socket (topic `bteng`). With host networking,
 the port is reachable straight from the host.
 
-Drop-in subscriber (`watch_bt.py` on the host, needs `pip install pyzmq`):
+A ready-to-run subscriber ships in the repo at `tools/bt_zmq_viewer.py`
+(needs `pip install pyzmq` on the host). With the demo running, just:
+
+```bash
+python3 tools/bt_zmq_viewer.py            # formatted tick log
+python3 tools/bt_zmq_viewer.py --raw      # raw JSON events
+python3 tools/bt_zmq_viewer.py --host localhost --port 1667
+```
+
+Its core is the same handful of lines, if you'd rather inline it:
 
 ```python
 import json
