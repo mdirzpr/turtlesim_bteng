@@ -127,14 +127,29 @@ which is incompatible with BTEng's event stream. Instead BTEng streams its own
 JSON tick events over a ZMQ `PUB` socket (topic `bteng`). With host networking,
 the port is reachable straight from the host.
 
-A ready-to-run subscriber ships in the repo at `tools/bt_zmq_viewer.py`
-(needs `pip install pyzmq` on the host). With the demo running, just:
+Two ready-to-run viewers ship in the repo. With the demo running:
+
+**Flat tick log** — `tools/bt_zmq_viewer.py` (needs `pip install pyzmq`):
 
 ```bash
 python3 tools/bt_zmq_viewer.py            # formatted tick log
 python3 tools/bt_zmq_viewer.py --raw      # raw JSON events
 python3 tools/bt_zmq_viewer.py --host localhost --port 1667
 ```
+
+**Visual live tree** — `tools/bt_tree_viewer.py` (needs `pip install rich pyzmq`)
+draws the actual tree structure (parsed from the strategy XML) and recolors each
+node in place as it ticks — 🟢 SUCCESS, 🔴 FAILURE, 🟡 RUNNING, ⚪ IDLE — a
+lightweight, terminal-only stand-in for Groot2:
+
+```bash
+python3 tools/bt_tree_viewer.py                  # sequential skeleton (default)
+python3 tools/bt_tree_viewer.py --strategy closest
+python3 tools/bt_tree_viewer.py --xml /path/to/tree.xml
+```
+
+Pass `--strategy` to match whichever tree you launched, so the drawn skeleton
+lines up with the live events.
 
 Its core is the same handful of lines, if you'd rather inline it:
 
