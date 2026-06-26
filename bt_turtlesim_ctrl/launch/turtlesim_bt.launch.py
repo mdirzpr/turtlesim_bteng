@@ -22,7 +22,7 @@ Usage
 Live visualisation 🛰️
 ---------------------
   There is NO Groot2 here. The controller embeds a BTEng `ZmqPublisher`
-  that streams tick events on tcp://*:1667, plus a colored console Logger.
+  that streams tick events on tcp://*:2667, plus a colored console Logger.
   Install the stream extra with:  pip install 'bteng[zmq]'
   Disable the stream at launch with:  enable_zmq:=false
 """
@@ -86,7 +86,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # -------------------------------------------------------------------------
-    # 3. BTEng controller — owns the embedded ZmqPublisher (tcp://*:1667)
+    # 3. BTEng controller — owns the embedded ZmqPublisher (tcp://*:2667)
     # -------------------------------------------------------------------------
     controller_node = Node(
         package="bt_turtlesim_ctrl",
@@ -106,7 +106,7 @@ def launch_setup(context, *args, **kwargs):
         LogInfo(
             msg=(
                 "🛰️   BTEng ZmqPublisher will stream tick events on "
-                "tcp://*:1667 (install with: pip install 'bteng[zmq]')"
+                "tcp://*:2667 (install with: pip install 'bteng[zmq]')"
                 if enable_zmq_bool
                 else "🛰️   BTEng ZMQ stream disabled (enable_zmq:=false)"
             )
@@ -142,7 +142,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "enable_zmq",
             default_value="true",
-            description="Enable the BTEng ZmqPublisher live stream on port 1667 (true/false)",
+            description="Enable the BTEng ZmqPublisher live stream on port 2667 (true/false)",
         ),
         OpaqueFunction(function=launch_setup),
     ])

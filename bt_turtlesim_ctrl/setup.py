@@ -29,7 +29,7 @@ setup(
     maintainer_email="mahdi.rezapour@dfki.de",
     description=(
         "BTEng (Python) prey-hunting controller for turtlesim with a "
-        "ZmqPublisher live stream on port 1667."
+        "ZmqPublisher live stream on port 2667."
     ),
     license="MIT",
     tests_require=["pytest"],

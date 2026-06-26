@@ -57,7 +57,7 @@ class TurtleHuntController(RosBTExecutor):
         self.declare_parameter("tree_xml_file", "")
         self.declare_parameter("strategy", "sequential")
         self.declare_parameter("tick_interval", 0.02)
-        self.declare_parameter("zmq_port", 1667)
+        self.declare_parameter("zmq_port", 2667)
         self.declare_parameter("enable_zmq", True)
 
         xml_file = self.get_parameter("tree_xml_file").value

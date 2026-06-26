@@ -6,7 +6,7 @@
 # e.g. `ros2 launch ... min_interval:=1.0`.
 #
 # Visualisation note: there is NO Groot2 in the BTEng port. The controller
-# embeds a BTEng ZmqPublisher that streams tick events on tcp://*:1667
+# embeds a BTEng ZmqPublisher that streams tick events on tcp://*:2667
 # (install with: pip install 'bteng[zmq]').
 
 turtle_spawner:
@@ -27,7 +27,7 @@ turtle_controller:
     tick_interval: 0.02
 
     # BTEng ZmqPublisher port for the live tick-event stream.
-    zmq_port: 1667
+    zmq_port: 2667
 
     # Enable the embedded BTEng ZmqPublisher (needs pip install 'bteng[zmq]').
     enable_zmq: true

@@ -10,11 +10,11 @@
 A **BTEng** (pure-Python behavior trees) showcase running in a containerized ROS 2
 Jazzy environment. A hunter turtle chases and eliminates spawned prey turtles
 using an **XML-defined** behavior tree with two selectable strategies, and you can
-watch the tree tick live over BTEng's own **ZmqPublisher** stream on port **1667**.
+watch the tree tick live over BTEng's own **ZmqPublisher** stream on port **2667**.
 
 | Package | What it does | Live stream |
 |---------|-------------|-------------|
-| `bt_turtlesim_ctrl` | Turtlesim prey-hunting demo — a hunter turtle chases and eliminates spawned prey turtles using a BTEng tree with two selectable strategies | **ZMQ 1667** |
+| `bt_turtlesim_ctrl` | Turtlesim prey-hunting demo — a hunter turtle chases and eliminates spawned prey turtles using a BTEng tree with two selectable strategies | **ZMQ 2667** |
 | `bt_turtlesim_interfaces` | Custom ROS 2 message (`TurtleTarget.msg`) shared between spawner and controller | — |
 
 Built on:
@@ -68,7 +68,7 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest
 ```
 
 Watch the colored tick log in the console, and (optionally) connect a ZMQ
-client to `tcp://localhost:1667` for the live event stream (see below).
+client to `tcp://localhost:2667` for the live event stream (see below).
 
 ---
 
@@ -110,7 +110,7 @@ cycle. See [CLAUDE.md](CLAUDE.md) for the full architecture.
 ### Launch options
 
 ```bash
-# Default (sequential strategy, ZMQ stream enabled on 1667)
+# Default (sequential strategy, ZMQ stream enabled on 2667)
 ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py
 
 # Closest-first strategy
@@ -119,14 +119,14 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest
 
 ---
 
-## 🛰️ Live Introspection (BTEng ZmqPublisher, port 1667)
+## 🛰️ Live Introspection (BTEng ZmqPublisher, port 2667)
 
 This demo does **not** use Groot2. Groot2 speaks BehaviorTree.CPP's wire
 protocol, which is **incompatible** with BTEng's event stream — they cannot
 interoperate. Instead, introspection is provided by BTEng itself:
 
 - a colored **console Logger** sink (always on — just watch the controller log), and
-- an optional **`ZmqPublisher`** that streams tick events on `tcp://*:1667`.
+- an optional **`ZmqPublisher`** that streams tick events on `tcp://*:2667`.
 
 The ZMQ stream is an optional dependency. To enable it:
 
@@ -134,7 +134,7 @@ The ZMQ stream is an optional dependency. To enable it:
 pip install 'bteng[zmq]'   # pulls in pyzmq
 ```
 
-Then point any ZMQ subscriber at `tcp://localhost:1667` to receive the live
+Then point any ZMQ subscriber at `tcp://localhost:2667` to receive the live
 tick/status events. If `pyzmq` is missing the controller logs a warning and
 continues with the console logger only. The port and enable flag are launch /
 node parameters (`zmq_port`, `enable_zmq`).

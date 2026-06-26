@@ -3,7 +3,7 @@
 
 Where ``bt_zmq_viewer.py`` prints a flat scrolling log, this draws the actual
 behavior-tree structure (parsed from the strategy XML) and recolors each node
-in place as tick events arrive on ``tcp://localhost:1667`` — a lightweight,
+in place as tick events arrive on ``tcp://localhost:2667`` — a lightweight,
 terminal-only alternative to Groot2 (which is incompatible with BTEng).
 
     python3 tools/bt_tree_viewer.py                 # sequential strategy
@@ -37,7 +37,7 @@ except ImportError:
     sys.exit("rich is not installed. Install it with:  pip install rich pyzmq")
 
 DEFAULT_HOST = "localhost"
-DEFAULT_PORT = 1667
+DEFAULT_PORT = 2667
 TOPIC = b"bteng"
 
 # Repo layout: this file lives in <repo>/tools/, the strategy XMLs in

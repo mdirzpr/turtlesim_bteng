@@ -2,7 +2,7 @@
 """Live viewer for the BTEng ZmqPublisher tick stream.
 
 The turtle_controller embeds a BTEng ``ZmqPublisher`` that streams JSON tick
-events over a ZMQ ``PUB`` socket (topic ``bteng``) on ``tcp://*:1667``. With the
+events over a ZMQ ``PUB`` socket (topic ``bteng``) on ``tcp://*:2667``. With the
 container running in host-network mode the port is reachable straight from the
 host, so just run this script while the demo is up:
 
@@ -30,7 +30,7 @@ except ImportError:
     )
 
 DEFAULT_HOST = "localhost"
-DEFAULT_PORT = 1667
+DEFAULT_PORT = 2667
 TOPIC = b"bteng"
 
 

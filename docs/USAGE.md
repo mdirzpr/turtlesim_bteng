@@ -80,7 +80,7 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py
 | `min_interval` | *(empty → 2.0)* | Lower bound (s) between periodic prey spawns. |
 | `max_interval` | *(empty → 4.0)* | Upper bound (s) between periodic prey spawns. |
 | `initial_spawn_count` | *(empty → 3)* | Prey spawned in the startup burst (`0` disables the burst). |
-| `enable_zmq` | `true` | Enable the BTEng `ZmqPublisher` live stream on port 1667. |
+| `enable_zmq` | `true` | Enable the BTEng `ZmqPublisher` live stream on port 2667. |
 
 Examples:
 
@@ -115,7 +115,7 @@ Set via `config/params.yaml` or overridden by the launch file.
 | `tree_xml_file` | *(set by launch)* | Absolute path to the chosen strategy XML in the install share. |
 | `strategy` | `sequential` | Passed to the tree; informational at the controller level. |
 | `tick_interval` | `0.02` | BT tick period in seconds (~50 Hz). |
-| `zmq_port` | `1667` | TCP port for the `ZmqPublisher` stream. |
+| `zmq_port` | `2667` | TCP port for the `ZmqPublisher` stream. |
 | `enable_zmq` | `true` | Start the ZMQ publisher (needs `pyzmq`). |
 
 ---
@@ -134,7 +134,7 @@ Two ready-to-run viewers ship in the repo. With the demo running:
 ```bash
 python3 tools/bt_zmq_viewer.py            # formatted tick log
 python3 tools/bt_zmq_viewer.py --raw      # raw JSON events
-python3 tools/bt_zmq_viewer.py --host localhost --port 1667
+python3 tools/bt_zmq_viewer.py --host localhost --port 2667
 ```
 
 **Visual live tree** — `tools/bt_tree_viewer.py` (needs `pip install rich pyzmq`)
@@ -159,10 +159,10 @@ import zmq
 
 ctx = zmq.Context.instance()
 sock = ctx.socket(zmq.SUB)
-sock.connect("tcp://localhost:1667")
+sock.connect("tcp://localhost:2667")
 sock.setsockopt(zmq.SUBSCRIBE, b"bteng")   # topic prefix
 
-print("Listening for BTEng tick events on tcp://localhost:1667 …")
+print("Listening for BTEng tick events on tcp://localhost:2667 …")
 while True:
     raw = sock.recv()
     _topic, _, payload = raw.partition(b" ")   # "bteng <json>"

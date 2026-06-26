@@ -10,7 +10,7 @@ to **BTEng** (pure-Python behavior trees) + **bteng-ros2**. Two packages:
 1. **`bt_turtlesim_ctrl`** (ament_**python**) — turtlesim prey-hunting demo. A
    spawner node drops prey turtles every 2–4 s; the BT controller drives
    `turtle1` to catch and eliminate them. Two hunting strategies are selectable
-   at launch time. Live introspection via BTEng's **ZmqPublisher on port 1667**
+   at launch time. Live introspection via BTEng's **ZmqPublisher on port 2667**
    plus a colored console Logger. **No Groot2** (incompatible with BTEng's stream).
 
 2. **`bt_turtlesim_interfaces`** (ament_**cmake**) — custom ROS 2 message
@@ -52,7 +52,7 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest
 ```
 
 The controller streams live tick events over BTEng's `ZmqPublisher` on
-`tcp://*:1667` (when `bteng[zmq]` / pyzmq is installed) and always logs the tree
+`tcp://*:2667` (when `bteng[zmq]` / pyzmq is installed) and always logs the tree
 status to the console with the colored `Logger` sink.
 
 ## Architecture
@@ -171,17 +171,17 @@ Sequence "HuntOneTurtle"
 - `turtle_controller` — `tree_xml_file` (absolute path to the chosen strategy XML
   in the install share, supplied by the launch file), `strategy`
   (`sequential`/`closest`), `tick_interval` (default 0.02 → ~50 Hz),
-  `zmq_port` (default 1667), `enable_zmq` (default True).
+  `zmq_port` (default 2667), `enable_zmq` (default True).
 
 ## Docker details
 
 - **Network/IPC:** host mode required for ROS 2 DDS discovery; it also exposes
-  the BTEng ZmqPublisher (`tcp://*:1667`) directly on the host (no port mapping).
+  the BTEng ZmqPublisher (`tcp://*:2667`) directly on the host (no port mapping).
 - **ROS_DOMAIN_ID=42** — set in `docker-compose.yaml` to avoid collisions with
   other ROS 2 processes.
 - **X11 is required** for the turtlesim GUI window (run `xhost +local:docker` on
   the host first). BT *introspection*, however, needs no GUI — it is the BTEng
-  ZmqPublisher (port 1667) + colored console logger, not a GUI tool like Groot2.
+  ZmqPublisher (port 2667) + colored console logger, not a GUI tool like Groot2.
 - **Build cache:** the host `./.colcon/{build,install,log}` directories are
   bind-mounted into `/dev_ws/` so colcon artifacts persist across container restarts.
 

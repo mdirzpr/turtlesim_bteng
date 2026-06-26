@@ -31,7 +31,7 @@
 #     xhost -local:docker
 #
 # 🔌 BTEng Live Stream:
-#   The controller publishes a BTEng ZmqPublisher stream on tcp://*:1667.
+#   The controller publishes a BTEng ZmqPublisher stream on tcp://*:2667.
 #   Because the container uses host networking, that port is reachable directly
 #   on the host (no port mapping needed). Groot2 is NOT used here.
 ################################################################################
@@ -87,7 +87,7 @@ services:
     # network_mode: host
     #   - Container shares host network stack (no NAT)
     #   - Required for ROS 2 DDS discovery between host and container
-    #   - Exposes the BTEng ZmqPublisher (tcp://*:1667) directly on the host
+    #   - Exposes the BTEng ZmqPublisher (tcp://*:2667) directly on the host
     #
     # ipc: host
     #   - Shared memory for efficient inter-process communication
