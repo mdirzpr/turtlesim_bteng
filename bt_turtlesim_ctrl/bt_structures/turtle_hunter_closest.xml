@@ -21,7 +21,7 @@
   The infinite hunt loop lives in the controller (custom looping executor),
   which resets the tree and re-ticks after each completed cycle.
 
-  Live introspection: BTEng ZmqPublisher streams tick events on tcp://*:1667.
+  Live introspection: BTEng ZmqPublisher streams tick events on tcp://*:2667.
   ============================================================================
 -->
 <BTEng format_version="1.0" main_tree_to_execute="TurtleHunter">

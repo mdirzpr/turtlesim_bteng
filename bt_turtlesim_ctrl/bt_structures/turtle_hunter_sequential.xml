@@ -19,7 +19,7 @@
   executor) resets the tree and re-ticks after each completed cycle, because
   BTEng has no Repeat decorator and RosBTExecutor stops on completion.
 
-  Live introspection: BTEng ZmqPublisher streams tick events on tcp://*:1667.
+  Live introspection: BTEng ZmqPublisher streams tick events on tcp://*:2667.
   ============================================================================
 -->
 <BTEng format_version="1.0" main_tree_to_execute="TurtleHunter">

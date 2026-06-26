@@ -12,7 +12,7 @@
 #   - bteng-ros2 (ROS 2 base classes / executor for BTEng)
 #   - turtlesim (the GUI simulator we drive)
 #
-#   Live introspection is provided by BTEng's ZmqPublisher on tcp://*:1667 plus
+#   Live introspection is provided by BTEng's ZmqPublisher on tcp://*:2667 plus
 #   a colored console Logger. Groot2 is NOT used (incompatible with BTEng's
 #   stream), so there is no AppImage / FUSE / Qt-SVG machinery here.
 #
@@ -79,7 +79,7 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 # Installed system-wide with --break-system-packages (Ubuntu 24.04 requirement):
 #   - bteng      : the pure-Python behavior tree engine
 #   - bteng-ros2 : ROS 2 base classes + RosBTExecutor for BTEng
-#   - pyzmq      : powers BTEng's ZmqPublisher live stream on port 1667
+#   - pyzmq      : powers BTEng's ZmqPublisher live stream on port 2667
 #
 # (Equivalent to `pip install 'bteng[zmq]' bteng-ros2`.)
 ################################################################################

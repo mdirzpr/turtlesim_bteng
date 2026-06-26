@@ -43,7 +43,7 @@ echo -e "${GREEN}Ready! ${NC}Type your commands below or run:"
 echo -e "  ${BLUE}colcon build --symlink-install${NC}"
 echo -e "  ${BLUE}ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py${NC}"
 echo ""
-echo -e "${INFO}${YELLOW}BTEng live stream: ZmqPublisher on tcp://*:1667 (host net) — pip install 'bteng[zmq]'${NC}"
+echo -e "${INFO}${YELLOW}BTEng live stream: ZmqPublisher on tcp://*:2667 (host net) — pip install 'bteng[zmq]'${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 

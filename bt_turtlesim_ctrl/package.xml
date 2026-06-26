@@ -10,7 +10,7 @@
     strategies:
       - sequential: catch turtles in the order they appeared
       - closest:    always chase the nearest turtle first
-    Live introspection is provided by BTEng's ZmqPublisher (tcp://*:1667) plus a
+    Live introspection is provided by BTEng's ZmqPublisher (tcp://*:2667) plus a
     colored console Logger sink. (No Groot2 / BehaviorTree.CPP.)
   </description>
 

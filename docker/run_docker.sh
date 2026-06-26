@@ -6,7 +6,7 @@
 #   ./docker/run_docker.sh turtlesim_bteng:dev bash
 #
 # Notes:
-#   - --net=host exposes the BTEng ZmqPublisher (tcp://*:1667) directly on the host.
+#   - --net=host exposes the BTEng ZmqPublisher (tcp://*:2667) directly on the host.
 #   - X11 is forwarded so turtlesim's window appears on your desktop.
 #     Run `xhost +local:docker` on the HOST first.
 
