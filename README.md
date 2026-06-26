@@ -178,6 +178,13 @@ CLAUDE.md → "Adding a new BT node".
 
 ---
 
+## 🔗 Related
+
+For the **BehaviorTree.CPP** version of this demo, check this repository:
+https://github.com/mdirzpr/turtlesim_btcpp
+
+---
+
 ## 📝 License
 
 MIT — see [LICENSE](LICENSE) for details.
