@@ -81,9 +81,28 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 #   - bteng-ros2 : ROS 2 base classes + RosBTExecutor for BTEng
 #   - pyzmq      : powers BTEng's ZmqPublisher live stream on port 2667
 #
-# (Equivalent to `pip install 'bteng[zmq]' bteng-ros2`.)
+# (Equivalent to `pip install 'bteng[zmq]==0.3.2' bteng-ros2==0.3.0`.)
+#
+# ⚠️ VERSIONS ARE PINNED ON PURPOSE — do not loosen them.
+#   These are ROS-facing base classes, and unpinned rebuilds have silently
+#   broken the demo before: a newer bteng-ros2 made RosBTExecutor.set_tree()
+#   read self._ros_node, which turtle_controller_node.py did not define, so the
+#   controller died at startup while turtlesim kept running (prey everywhere,
+#   hunter frozen). An image rebuilt months after the last one picked that up
+#   with no code change on our side.
+#
+#   To bump deliberately:
+#     1. raise a version below,
+#     2. ./run.sh rebuild        (rebuilds the image + the colcon workspace)
+#     3. ./run.sh                (watch turtle1 actually chase and catch prey)
+#     4. commit the new pins together with any code the new API needs.
+#
+#   See CLAUDE.md → "BTEng gotchas" for the subclassing contract this rests on.
 ################################################################################
-RUN pip3 install --break-system-packages bteng bteng-ros2 pyzmq
+RUN pip3 install --break-system-packages \
+    bteng==0.3.2 \
+    bteng-ros2==0.3.0 \
+    pyzmq==27.2.0
 
 ################################################################################
 # 🖥️ X11 DISPLAY CONFIGURATION

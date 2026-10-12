@@ -43,6 +43,62 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest
 > **Build order:** `bt_turtlesim_interfaces` (ament_cmake) must build before
 > `bt_turtlesim_ctrl` (ament_python). A plain `colcon build` orders this for you.
 
+### Shortcut: `./run.sh`
+
+The five steps above are the reference workflow — nothing below replaces them.
+`./run.sh` is a thin wrapper that runs those exact commands for you, skipping
+the ones already done:
+
+```bash
+./run.sh                 # xhost → image (if missing) → colcon (if stale) → ros2 launch
+./run.sh closest         # same, closest-first strategy
+```
+
+What it checks, in order:
+
+1. **Docker** — engine installed, Compose V2 available, daemon reachable.
+   Anything missing aborts with the fix to apply.
+2. **X11** — if `DISPLAY` is set but local containers aren't allowed to draw, it
+   runs `xhost +local:docker` for you.
+3. **Image** — builds `turtlesim_bteng:dev` via `docker compose build` when it
+   doesn't exist yet (`./run.sh rebuild` forces it, e.g. after editing
+   `docker/Dockerfile` or `docker/entrypoint.sh`).
+4. **Workspace** — runs `colcon build --symlink-install` in the container when
+   `.colcon/install/setup.bash` is missing or older than a source file.
+5. **Host `.venv`** — for the `tree` / `viewer` subcommands only: creates
+   `.venv` and installs `tools/requirements.txt` (pyzmq + rich), reinstalling
+   only when that file changes.
+
+Then it launches. Bare `sequential` / `closest` are shorthand for
+`strategy:=…`; every other argument is forwarded to `ros2 launch` verbatim, so
+the whole launch-argument table in §3 works unchanged:
+
+```bash
+./run.sh demo min_interval:=1.0 max_interval:=2.0
+./run.sh demo closest enable_zmq:=false
+```
+
+Other subcommands: `setup` (prepare everything up front), `build` / `rebuild`,
+`shell`, `tree` / `viewer` (§5), `doctor` (check-only, changes nothing), `stop`,
+`clean`, `help`. Prefix any of them with `--dry-run` to print the underlying
+commands instead of executing them:
+
+```bash
+$ ./run.sh --dry-run closest
+$ env UID=1000 GID=1000 docker compose run --rm dev bash -c "ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest"
+```
+
+`./run.sh doctor` is the quickest way to see what state the checkout is in
+before running anything:
+
+```
+✅ docker 29.7.2 + compose 5.5.0
+✅ X11 access for local containers granted (DISPLAY=:0)
+✅ Docker image turtlesim_bteng:dev present
+⚠️  colcon workspace is stale (sources changed) — will rebuild on next run.
+✅ Host .venv present (Python 3.12.3)
+```
+
 ### Second terminal into the same container
 
 ```bash
@@ -69,6 +125,10 @@ source install/setup.bash
 
 ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py
 ```
+
+> `./run.sh` is Docker-only — on a native install use the commands above
+> directly (the host `.venv` for the viewers is still available via
+> `./run.sh setup`, or `pip install -r tools/requirements.txt`).
 
 ---
 
@@ -151,6 +211,17 @@ python3 tools/bt_tree_viewer.py --xml /path/to/tree.xml
 Pass `--strategy` to match whichever tree you launched, so the drawn skeleton
 lines up with the live events.
 
+Both need `pyzmq` (and `rich`, for the tree view) on the host. If you'd rather
+not manage that yourself, `./run.sh` wraps them in a project-local `.venv` it
+creates on first use from `tools/requirements.txt`:
+
+```bash
+./run.sh viewer              # = python3 tools/bt_zmq_viewer.py
+./run.sh viewer --raw        # extra flags are passed through
+./run.sh tree                # = python3 tools/bt_tree_viewer.py
+./run.sh tree closest        # 'closest' is shorthand for --strategy closest
+```
+
 Its core is the same handful of lines, if you'd rather inline it:
 
 ```python
@@ -192,7 +263,9 @@ console logger only.
 | `TreeValidationError` at startup | A port used in the XML isn't declared in the node's `provided_ports()`, or a `<TreeNodesModel>` direction disagrees with it. See CLAUDE.md → "Adding a new BT node". |
 | Hunter never moves / no prey | Confirm `turtle_spawner` is publishing `/new_turtle` (`ros2 topic echo /new_turtle`) and turtlesim's `/spawn` service is up. |
 | ROS nodes can't see each other | Check `ROS_DOMAIN_ID` matches across terminals (the container uses `42`). |
-| Colcon picks up a stale build | `rm -rf build install log` (or `.colcon/*` on the host) and rebuild. |
+| Colcon picks up a stale build | `rm -rf build install log` (or `.colcon/*` on the host) and rebuild — `./run.sh clean` does the host-side variant. |
+| Container still shows old settings (e.g. the wrong ZMQ port) | The image was built before the change. Rebuild it: `docker compose build` or `./run.sh rebuild`. |
+| `./run.sh` reports something odd | Run `./run.sh doctor` (checks only, changes nothing) and `./run.sh --dry-run <cmd>` to see the exact command it would run. |
 
 ---
 
@@ -206,3 +279,5 @@ console logger only.
 | `bt_turtlesim_ctrl/bt_structures/*.xml` | The two strategy trees (BTEng XML). |
 | `bt_turtlesim_ctrl/config/params.yaml` | Default parameters. |
 | `bt_turtlesim_ctrl/launch/turtlesim_bt.launch.py` | Launch file. |
+| `run.sh` | Optional one-command wrapper around the workflow above. |
+| `tools/requirements.txt` | Host-side deps for the two viewers (pyzmq, rich). |

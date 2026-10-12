@@ -1,0 +1,12 @@
+# Host-side requirements for the BTEng live viewers in tools/.
+#
+# These are NOT the demo's dependencies — bteng, bteng-ros2 and the ROS 2 stack
+# live inside the Docker image (see docker/Dockerfile). This file only covers
+# what the two viewer scripts need on the host to read the ZmqPublisher stream
+# on tcp://localhost:2667.
+#
+#   ./run.sh setup            # creates .venv and installs these
+#   pip install -r tools/requirements.txt
+
+pyzmq>=25          # tools/bt_zmq_viewer.py + tools/bt_tree_viewer.py — ZMQ SUB socket
+rich>=13           # tools/bt_tree_viewer.py — live terminal tree rendering

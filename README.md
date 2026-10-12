@@ -72,6 +72,53 @@ client to `tcp://localhost:2667` for the live event stream (see below).
 
 ---
 
+## 😴 Lazy Start (optional `./run.sh`)
+
+The four steps above are the real workflow and stay fully supported. If you'd
+rather not type them, `./run.sh` chains exactly those same commands — checking
+the Docker image, the colcon workspace and the host `.venv`, building only
+what's missing, then launching:
+
+```bash
+./run.sh                  # doctor → image → workspace → launch (sequential)
+./run.sh closest          # same, closest-first strategy
+```
+
+| Command | What it does |
+|---------|--------------|
+| `./run.sh` / `./run.sh demo` | Build whatever is missing, then `ros2 launch …` (default: `sequential`) |
+| `./run.sh closest` | Shorthand for `demo strategy:=closest` |
+| `./run.sh demo min_interval:=1.0 enable_zmq:=false` | Any other argument goes straight to `ros2 launch` |
+| `./run.sh setup` | Prepare everything up front: `.venv`, image, workspace |
+| `./run.sh build` | Build the image if missing + force a `colcon build` |
+| `./run.sh rebuild` | Rebuild the image from scratch too (after `Dockerfile` / `entrypoint.sh` edits) |
+| `./run.sh shell` | Interactive dev shell in the container (= `docker compose run --rm dev bash`) |
+| `./run.sh tree [closest]` | Live **visual** BT viewer on the host (auto-creates `.venv`) |
+| `./run.sh viewer` | Flat live tick log on the host |
+| `./run.sh doctor` | Check docker, X11, image, workspace, `.venv` — changes nothing |
+| `./run.sh stop` / `./run.sh clean` | `docker compose down` / wipe `.colcon/*` build artifacts |
+
+It also runs `xhost +local:docker` for you when the X11 grant is missing, and
+creates `.venv` from [`tools/requirements.txt`](tools/requirements.txt) the
+first time you ask for a viewer.
+
+Not sure what it will do? Nothing is hidden — `--dry-run` prints the underlying
+commands instead of running them:
+
+```bash
+./run.sh --dry-run closest
+# $ env UID=1000 GID=1000 docker compose run --rm dev bash -c "ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest"
+```
+
+Typical two-terminal session:
+
+```bash
+./run.sh closest      # terminal 1 — the demo
+./run.sh tree closest # terminal 2 — the live tree view
+```
+
+---
+
 ## 🐢 Turtlesim Prey-Hunting Demo
 
 ### How it works
@@ -151,6 +198,10 @@ node parameters (`zmq_port`, `enable_zmq`).
 | `docker compose exec dev bash` | Attach to running container |
 | `docker compose down` | Stop and remove containers |
 | `docker compose logs -f dev` | View logs |
+
+Each of these has a `./run.sh` shortcut (`build`, `shell`, `stop`, …) — see
+[Lazy Start](#-lazy-start-optional-runsh). The wrapper is a convenience layer
+only; the commands in this table remain the reference workflow.
 
 To open a second terminal in a running container:
 ```bash

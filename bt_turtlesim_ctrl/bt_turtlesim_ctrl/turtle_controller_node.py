@@ -88,6 +88,19 @@ class TurtleHuntController(RosBTExecutor):
             enable_tracing=False,
         )
         self._bt = TreeExecutor(cfg)
+
+        # We skipped RosBTExecutor.__init__ above (it builds its own tree and
+        # tick timer from constructor args, which we cannot supply before the
+        # parameters are read). Its inherited methods still expect the state it
+        # would have set, so establish that here — set_tree() reads _ros_node
+        # first thing, and halt()/run() read the rest:
+        #   _ros_node = None  -> set_tree injects `self` as the tree's ros_node
+        self._ros_node = None
+        self._cfg = cfg
+        self._final_status: NodeStatus | None = None
+        self._halted = False
+        self._spinning = False
+
         # RosBTExecutor.set_tree: injects ros_node=self into all nodes, wires the
         # ROS clock into Timeout/RateController, and validates the tree.
         self.set_tree(tree)

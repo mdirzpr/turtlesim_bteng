@@ -51,6 +51,14 @@ ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py
 ros2 launch bt_turtlesim_ctrl turtlesim_bt.launch.py strategy:=closest
 ```
 
+`./run.sh` (repo root) is an optional host-side wrapper over the same commands:
+it checks docker/X11, builds the image when missing, runs `colcon build` when
+`.colcon/install/setup.bash` is older than a source file, then launches
+(`./run.sh`, `./run.sh closest`, `./run.sh shell`, `./run.sh tree`,
+`./run.sh doctor`, `./run.sh --dry-run …`). It adds no behavior of its own — the
+documented manual flow stays the reference. Host-side viewer deps live in
+`tools/requirements.txt` and are installed into `.venv` on first use.
+
 The controller streams live tick events over BTEng's `ZmqPublisher` on
 `tcp://*:2667` (when `bteng[zmq]` / pyzmq is installed) and always logs the tree
 status to the console with the colored `Logger` sink.
@@ -145,6 +153,15 @@ Sequence "HuntOneTurtle"
 - **ros_node is injected at `set_tree()` time** (deferred). Nodes are constructed
   as `cls(name=name, config=config)` with no ros_node — never touch ROS at
   construction. Use `self._require_ros_node()` / mixin helpers at runtime only.
+- **Subclassing `RosBTExecutor` without calling its `__init__`** (what
+  `turtle_controller_node.py` does — the tree needs parameters read after node
+  init) means none of the state its methods rely on exists. `set_tree()` reads
+  `self._ros_node` on its first line, and `halt()`/`run()` read `_final_status`
+  / `_halted` / `_spinning`. Set all of them right after `Node.__init__`;
+  `_ros_node = None` is what makes `set_tree()` inject `self`. Symptom when
+  missing: `AttributeError: object has no attribute '_ros_node'` at startup —
+  the controller dies while turtlesim and the spawner keep running, so the
+  canvas fills with prey and the hunter never moves.
 - **Create publishers/clients in `setup()` (called once), not in `on_start()`.**
   The looping executor re-activates nodes every cycle and `create_publisher` is
   not idempotent. `_init_service_client` IS idempotent (guarded), so it may be
@@ -202,3 +219,5 @@ Sequence "HuntOneTurtle"
 | `bt_turtlesim_ctrl/setup.py` | ament_python packaging + console_scripts entry points |
 | `docker/Dockerfile` | Image; pip-installs `bteng`, `bteng-ros2`, apt-installs turtlesim |
 | `dependencies.repos` | Documents that bteng/bteng-ros2 come from pip (no vcstool sources) |
+| `run.sh` | Optional one-command wrapper (checks → build → launch); see "Running" |
+| `tools/requirements.txt` | Host-side deps for the ZMQ viewers (pyzmq, rich), installed into `.venv` |
